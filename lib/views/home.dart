@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:meusrecebimentos/geral.dart';
 import 'package:meusrecebimentos/model/conta_model.dart';
 import 'package:meusrecebimentos/services/conta_service.dart';
+import 'package:toast/toast.dart';
+
+import '../main.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({Key key, this.title}) : super(key: key);
@@ -15,22 +19,23 @@ class _HomePageState extends State<HomePage> {
   List<Conta> contas = List();
   List<Conta> contasFiltro = List();
 
+  int filtroPago = 0;
+
   Future<void> _buscaContas() async{
-    var result = await ContaService.getAllConta();
+    var result = await ContaService.getAllConta(pago: filtroPago);
 
     setState(() {
       contas = result;
       contasFiltro=contas;
     });
   }
+  Future<void> _deletarConta(int id) async{
+    await ContaService.deleteConta(id);
+  }
 
   @override
   void initState() {
     super.initState();
-    ContaService.addConta(Conta("Fernando",3500));
-    ContaService.addConta(Conta("Felipe",2000,pago: 1,valorPago: 2000));
-    ContaService.addConta(Conta("Ruan",1300));
-    ContaService.addConta(Conta("Manoel",1400));
   }
 
 
@@ -61,7 +66,7 @@ class _HomePageState extends State<HomePage> {
                 direction: DismissDirection.endToStart,
                 key: new Key(contasFiltro[index].id.toString()),
                 onDismissed: (direction) {
-                  //_deletarEmitente(contasFiltro[index].id);
+                  _deletarConta(contasFiltro[index].id);
                   Scaffold.of(context).showSnackBar(
                       new SnackBar(
                         content: new Text("Item Removido."),
@@ -90,10 +95,15 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
                 child: ListTile(
-                  //onTap: (){
-                  //  consObject = contasFiltro[index];
-                  //  Navigator.popAndPushNamed(context, '/cadastroEmitente');
-                  //},
+                  onTap: (){
+                    if(contasFiltro[index].valorPago >= contasFiltro[index].valor)
+                      Toast.show('Conta Já Foi Paga!', context,duration: 3);
+                    else{
+                      consObject = contasFiltro[index];
+                      Navigator.pushNamed(context, ALTERA_CONTA);
+                    }
+
+                  },
                   title: new Column(
                     children: <Widget>[
                       Row(
@@ -115,8 +125,8 @@ class _HomePageState extends State<HomePage> {
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: <Widget>[
                           Text(
-                            ""+contasFiltro[index].valor.toString()
-                                +" - "+contasFiltro[index].valorPago.toString()
+                            ""+contasFiltro[index].valor.toStringAsFixed(2)
+                                +" - "+contasFiltro[index].valorPago.toStringAsFixed(2)
                                 + " = ",
                             style: TextStyle(
                                 fontSize: 17
@@ -124,7 +134,7 @@ class _HomePageState extends State<HomePage> {
                           ),
                           Text(
                             (contasFiltro[index].valor
-                                - contasFiltro[index].valorPago).toString(),
+                                - contasFiltro[index].valorPago).toStringAsFixed(2),
                             style: TextStyle(
                                 fontSize: 20,
                                 fontStyle: FontStyle.italic
@@ -134,7 +144,6 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ],
                   ),
-                  //subtitle: Text(contasFiltro[index].fantasia),
                 ),
               );
             },
@@ -153,9 +162,26 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black87,
+      backgroundColor: Colors.white,
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: Text(widget.title),
+        backgroundColor: Colors.black,
+        actions: <Widget>[
+          IconButton(
+            icon: filtroPago==1? Icon(Icons.data_usage) : Icon(Icons.check),
+            onPressed: (){
+              if(filtroPago==1) filtroPago = 0; else filtroPago = 1;
+              _buscaContas();
+            },
+          ),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.pushNamed(context, CADASTRO_CONTA);
+        },
+        child: Icon(Icons.add,color: Colors.white,size: 40,),
         backgroundColor: Colors.black,
       ),
       body: ListView(

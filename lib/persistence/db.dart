@@ -7,12 +7,16 @@ Database db;
 
 class DatabaseCreator{
   static const contaTable = 'conta';
+  static const usuarioTable = 'usuario';
+
   static const id = 'id';
   static const nome = 'nome';
   static const descricao = 'descricao';
   static const valor = 'valor';
   static const valorPago = 'valorPago';
   static const pago = 'pago';
+
+  static const senha = 'senha';
 
   static void databaseLog(String functionName, String sql,
       [List<Map<String, dynamic>> selectQueryResult, int insertAndUpdateQueryResult]){
@@ -38,6 +42,16 @@ class DatabaseCreator{
 
     await db.execute(Sql);
   }
+  Future<void> createUsuarioTable(Database db) async{
+    final Sql = '''CREATE TABLE $usuarioTable
+    (
+      $id INTEGER PRIMARY KEY AUTOINCREMENT,
+      $nome TEXT NOT NULL,
+      $senha TEXT NOT NULL
+    )''';
+
+    await db.execute(Sql);
+  }
 
   Future<String> getDatabasePath(String dbName) async{
     final databasePath = await getDatabasesPath();
@@ -58,7 +72,11 @@ class DatabaseCreator{
   }
 
   Future<void> onCreate(Database db,int version) async{
-    await createContaTable(db);
+//    int dbAtual = await db.getVersion();
+//    if( dbAtual <= version)
+      await createContaTable(db);
+//    else if(dbAtual <= version)
+      await createUsuarioTable(db);
   }
 
   

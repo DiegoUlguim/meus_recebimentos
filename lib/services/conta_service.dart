@@ -3,8 +3,8 @@ import 'package:meusrecebimentos/persistence/db.dart';
 
 class ContaService{
  static Future<List<Conta>> getAllConta({int pago=0}) async{
-   final sql = '''SELECT * FROM ${DatabaseCreator.contaTable}''';
-   //WHERE ${DatabaseCreator.pago} == ${pago}
+   final sql = '''SELECT * FROM ${DatabaseCreator.contaTable}
+   WHERE ${DatabaseCreator.pago} == ${pago}''';
    final data = await db.rawQuery(sql);
    List<Conta> contas = List();
 
@@ -56,13 +56,13 @@ class ContaService{
 
  static Future<void> updateConta(Conta conta) async{
    final sql = '''UPDATE ${DatabaseCreator.contaTable}
-   SET (
-    ${DatabaseCreator.nome} = ${conta.nome},
-    ${DatabaseCreator.descricao} = ${conta.descricao},
-    ${DatabaseCreator.valor} = ${conta.valor},
-    ${DatabaseCreator.valorPago} = ${conta.valorPago},
+   SET 
+    ${DatabaseCreator.nome} = '${conta.nome}',
+    ${DatabaseCreator.descricao} = '${conta.descricao}',
+    ${DatabaseCreator.valor} = '${conta.valor}',
+    ${DatabaseCreator.valorPago} = '${conta.valorPago}',
     ${DatabaseCreator.pago} = ${conta.pago}
-    ) WHERE ${DatabaseCreator.id} == ${conta.id}''';
+    WHERE ${DatabaseCreator.id} = ${conta.id}''';
 
    final result = await db.rawUpdate(sql);
    DatabaseCreator.databaseLog('Update Conta', sql,null,result);
@@ -73,6 +73,22 @@ class ContaService{
 
    int count = data[0].values.elementAt(0);
    return count;
+ }
+
+ static Future<String> retornaTotal() async{
+   final data = await db.rawQuery('''SELECT SUM(${DatabaseCreator.valor}) 
+   FROM ${DatabaseCreator.contaTable}
+   WHERE ${DatabaseCreator.pago}=0''');
+
+   return data[0].values.elementAt(0).toStringAsFixed(2);
+ }
+
+ static Future<String> retornaRestante() async{
+   final data = await db.rawQuery('''SELECT SUM(${DatabaseCreator.valor}- ${DatabaseCreator.valorPago}) 
+   FROM ${DatabaseCreator.contaTable}
+   WHERE ${DatabaseCreator.pago}=0''');
+
+   return (data[0].values.elementAt(0)).toStringAsFixed(2);
  }
 
 }

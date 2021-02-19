@@ -8,7 +8,7 @@ class Conta{
   double valorPago;
   int pago;
 
-  Conta(this.nome,this.valor,{this.descricao,this.valorPago=0,this.pago=0});
+  Conta(this.nome,this.valor,{this.descricao="",this.valorPago=0,this.pago=0});
 
   Conta.fromJson(Map<String,dynamic> json){
     this.id=json[DatabaseCreator.id];
