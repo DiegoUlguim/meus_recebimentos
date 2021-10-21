@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:meusrecebimentos/model/conta_model.dart';
-import 'package:meusrecebimentos/services/conta_service.dart';
-import 'package:toast/toast.dart';
+import 'package:meus_recebimentos/model/conta_model.dart';
+import 'package:meus_recebimentos/services/conta_service.dart';
+// import 'package:toast/toast.dart';
 
 class AlteraContaPage extends StatefulWidget {
-  AlteraContaPage({Key key, this.title,this.conta}) : super(key: key);
+  const AlteraContaPage({Key? key, required this.title, this.conta}) : super(key: key);
 
   final String title;
-  final Conta conta;
+  final Conta? conta;
 
   @override
   _AlteraContaPageState createState() => _AlteraContaPageState(conta: conta);
@@ -15,13 +15,15 @@ class AlteraContaPage extends StatefulWidget {
 
 class _AlteraContaPageState extends State<AlteraContaPage> {
   _AlteraContaPageState({this.conta});
-  final Conta conta;
+  final Conta? conta;
 
   final txtValorPago = TextEditingController();
 
+
   String _validaConta(){
-    if(txtValorPago.text == "")
+    if(txtValorPago.text == "") {
       return "Favor Informar o Valor Pago!";
+    }
 
     List<String> valorTeste = txtValorPago.text.split(".");
     if(valorTeste.length > 2){
@@ -34,28 +36,29 @@ class _AlteraContaPageState extends State<AlteraContaPage> {
   Future<void> _alteraConta() async{
     String mens = _validaConta();
     if(mens != ""){
-      Toast.show(mens, context,duration: 3);
+      // Toast.show(mens, context,duration: 3);
     }
 
-    conta.valorPago += double.parse(txtValorPago.text.replaceAll(',', '.'));
+    conta!.valorPago += double.parse(txtValorPago.text.replaceAll(',', '.'));
 
-    if(conta.valorPago >= conta.valor)
-      conta.pago = 1;
+    if(conta!.valorPago >= conta!.valor) {
+      conta?.pago = 1;
+    }
 
-    await ContaService.updateConta(conta);
-    Toast.show("Alteração de conta realizado com sucesso!", context,duration: 3);
+    await ContaService.updateConta(conta!);
+    // Toast.show("Alteração de conta realizado com sucesso!", context,duration: 3);
     Navigator.pop(context);
   }
 
   Widget buildText(String label, BuildContext context, {
-    IconData icon,
-    TextEditingController campoText,
+    IconData? icon,
+    TextEditingController? campoText,
     TextInputType textInputType = TextInputType.text,
-    bool obscureText = false,Function funcao,double width})
+    bool obscureText = false,var funcao,double? width})
   {
-    return new Container(
+    return Container(
       width: width,
-      margin: EdgeInsets.only(right: 10.0,left: 10.0),
+      margin: const EdgeInsets.only(right: 10.0,left: 10.0),
 
       child: TextField(
         controller: campoText,
@@ -95,7 +98,7 @@ class _AlteraContaPageState extends State<AlteraContaPage> {
                       ),
                       //color: Colors.white,
                       onPressed: _alteraConta,
-                      child: Text(
+                      child: const Text(
                         "ALTERAR",
                         style: TextStyle(color: Colors.white,fontSize: 24),
                       ),
@@ -111,35 +114,35 @@ class _AlteraContaPageState extends State<AlteraContaPage> {
           children: <Widget>[
             Container(
               alignment: Alignment.centerLeft,
-              padding: EdgeInsets.only(top: 10,left: 10),
-              child: Text(conta.nome.toUpperCase()
-                ,style: TextStyle(fontSize: 30,color: Colors.deepPurpleAccent)),
+              padding: const EdgeInsets.only(top: 10,left: 10),
+              child: Text(conta!.nome.toUpperCase()
+                ,style: const TextStyle(fontSize: 30,color: Colors.deepPurpleAccent)),
             ),
             Container(
               alignment: Alignment.centerLeft,
-              padding: EdgeInsets.only(top: 10,left: 10),
-              child: Text(conta.descricao.toUpperCase()
-                  ,style: TextStyle(fontSize: 18,color: Colors.grey)),
+              padding: const EdgeInsets.only(top: 10,left: 10),
+              child: Text(conta!.descricao.toUpperCase()
+                  ,style: const TextStyle(fontSize: 18,color: Colors.grey)),
             ),
             Container(
               alignment: Alignment.centerRight,
-              padding: EdgeInsets.only(top: 25,right: 10),
-              child: Text('VALOR: ' + conta.valor.toStringAsFixed(2)
-                  ,style: TextStyle(fontSize: 24,color: Colors.black)),
+              padding: const EdgeInsets.only(top: 25,right: 10),
+              child: Text('VALOR: ' + conta!.valor.toStringAsFixed(2)
+                  ,style: const TextStyle(fontSize: 24,color: Colors.black)),
             ),
             Container(
               alignment: Alignment.centerRight,
-              padding: EdgeInsets.only(right: 10),
-              child: Text('VALOR PAGO: ' + conta.valorPago.toStringAsFixed(2)
-                  ,style: TextStyle(fontSize: 15,color: Colors.green,fontStyle: FontStyle.italic)),
+              padding: const EdgeInsets.only(right: 10),
+              child: Text('VALOR PAGO: ' + conta!.valorPago.toStringAsFixed(2)
+                  ,style: const TextStyle(fontSize: 15,color: Colors.green,fontStyle: FontStyle.italic)),
             ),
             Container(
               color: Colors.black,
               alignment: Alignment.centerRight,
-              padding: EdgeInsets.only(right: 10),
-              margin: EdgeInsets.only(bottom: 20),
-              child: Text('RESTA: ' + (conta.valor-conta.valorPago).toStringAsFixed(2)
-                  ,style: TextStyle(fontSize: 24,color: Colors.white,fontStyle: FontStyle.italic)),
+              padding: const EdgeInsets.only(right: 10),
+              margin: const EdgeInsets.only(bottom: 20),
+              child: Text('RESTA: ' + (conta!.valor-conta!.valorPago).toStringAsFixed(2)
+                  ,style: const TextStyle(fontSize: 24,color: Colors.white,fontStyle: FontStyle.italic)),
             ),
             buildText('Valor Pago', context,campoText: txtValorPago,textInputType: TextInputType.number),
 

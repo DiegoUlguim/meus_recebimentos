@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:meusrecebimentos/geral.dart';
-import 'package:meusrecebimentos/model/conta_model.dart';
-import 'package:meusrecebimentos/services/conta_service.dart';
-import 'package:toast/toast.dart';
+import 'package:meus_recebimentos/geral.dart';
+import 'package:meus_recebimentos/model/conta_model.dart';
+import 'package:meus_recebimentos/persistence/db.dart';
+import 'package:meus_recebimentos/services/conta_service.dart';
+import 'package:meus_recebimentos/views/altera_conta.dart';
+// import 'package:toast/toast.dart';
 
 import '../main.dart';
 
 class HomePage extends StatefulWidget {
-  HomePage({Key key, this.title}) : super(key: key);
+  HomePage({Key? key, required this.title}) : super(key: key);
 
   final String title;
 
@@ -16,18 +18,19 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  List<Conta> contas = List();
-  List<Conta> contasFiltro = List();
+  List<Conta>? contas;
+  List<Conta>? contasFiltro;
 
-  int filtroPago = 0;
+  bool filtroPago = false;
 
   Future<void> _buscaContas() async{
-    var result = await ContaService.getAllConta(pago: filtroPago);
-
-    setState(() {
-      contas = result;
-      contasFiltro=contas;
-    });
+    if(contas==null){
+      var result = await ContaService.getAllConta(pago: filtroPago);
+      setState(() {
+        contas = result.cast<Conta>();
+        contasFiltro=contas;
+      });
+    }
   }
   Future<void> _deletarConta(int id) async{
     await ContaService.deleteConta(id);
@@ -45,97 +48,93 @@ class _HomePageState extends State<HomePage> {
         if (contas == null) {
           return Container(
               height: MediaQuery.of(context).size.height/2,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Icon(
-                    Icons.hourglass_empty,
-                  )
-                ],
+              alignment: Alignment.center,
+              child: const Icon(
+                Icons.hourglass_empty,
               )
           );
         }
-        return Container(
-          height: MediaQuery.of(context).size.height,
-          width: MediaQuery.of(context).size.width,
-          child: ListView.builder(
-            itemCount: contasFiltro.length,
-            itemBuilder: (context,int index){
-              return new Dismissible(
-                //confirmDismiss: new MessageEvent("tem certeza jovem?", b),
-                direction: DismissDirection.endToStart,
-                key: new Key(contasFiltro[index].id.toString()),
-                onDismissed: (direction) {
-                  _deletarConta(contasFiltro[index].id);
-                  Scaffold.of(context).showSnackBar(
-                      new SnackBar(
-                        content: new Text("Item Removido."),
-                      )
-                  );
-                  contasFiltro.removeAt(index);
-                },
-                secondaryBackground: new Container(
-                  color: Colors.red,
-                  padding: EdgeInsets.only(right: 10),
-                  child: Align(
-                    alignment: Alignment.centerRight,
-                    child: Icon(
-                        Icons.delete
-                    ),
-                  ),
-                ),
-                background: new Container(
-                  padding: EdgeInsets.only(left: 10),
-                  color: Colors.blue,
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Icon(
-                        Icons.edit
-                    ),
-                  ),
-                ),
-                child: ListTile(
-                  onTap: (){
-                    if(contasFiltro[index].valorPago >= contasFiltro[index].valor)
-                      Toast.show('Conta Já Foi Paga!', context,duration: 3);
-                    else{
-                      consObject = contasFiltro[index];
-                      Navigator.pushNamed(context, ALTERA_CONTA);
-                    }
+        return ListView.builder(
+          itemCount: contasFiltro!.length,
+          itemBuilder: (context,int index){
+            return TextButton(
+              onPressed: (){
+                if(contasFiltro![index].valorPago >= contasFiltro![index].valor) {
+                  // Toast.show('Conta Já Foi Paga!', context,duration: 3);
+                } else{
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => AlteraContaPage(title: '', conta: contasFiltro![index],)),
+                  ).then((value) {
+                    setState(() {
+                      contas = null;
+                    });
+                  });
+                }
 
-                  },
-                  title: new Column(
-                    children: <Widget>[
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Colors.black12,
+                      spreadRadius: 1,
+                      blurRadius: 3,
+                      offset: Offset(0, 0),
+                    ),
+                  ],
+                  borderRadius: const BorderRadius.all(
+                      Radius.circular(15)
+                  ),
+                  color: retornaCorConta(contasFiltro![index]),
+                ),
+                padding: const EdgeInsets.only(left: 10),
+                width: MediaQuery.of(context).size.width,
+                height: 100,
+                // padding: EdgeInsets.all(5),
+                child: Container(
+                  decoration: const BoxDecoration(
+                    borderRadius: BorderRadius.all(
+                        Radius.circular(15)
+                    ),
+                    color: Colors.white,
+                  ),
+                  padding: const EdgeInsets.all(10),
+                  height: 100,
+                  child: Column(
+                    children: [
                       Row(
-                        children: <Widget>[
-                          Icon(
-                            iconsLista[contasFiltro[index].pago],
-                            size: 50,
-                            color: contasFiltro[index].pago == 0 ? Colors.black54 : Colors.green,
-                          ),
+                        children: [
                           Text(
-                            contasFiltro[index].nome,
-                            style: TextStyle(
+                            contasFiltro![index].nome,
+                            style: const TextStyle(
                                 fontSize: 30
                             ),
-                          )
+                          ),
+                          Text(
+                            ' '+contasFiltro![index].quantParcelas.toString(),
+                            style: const TextStyle(
+                                fontSize: 30
+                            ),
+                          ),
                         ],
                       ),
+
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: <Widget>[
                           Text(
-                            ""+contasFiltro[index].valor.toStringAsFixed(2)
-                                +" - "+contasFiltro[index].valorPago.toStringAsFixed(2)
+                            ""+contasFiltro![index].valor.toStringAsFixed(2)
+                                +" - "+contasFiltro![index].valorPago.toStringAsFixed(2)
                                 + " = ",
-                            style: TextStyle(
+                            style: const TextStyle(
                                 fontSize: 17
                             ),
                           ),
                           Text(
-                            (contasFiltro[index].valor
-                                - contasFiltro[index].valorPago).toStringAsFixed(2),
-                            style: TextStyle(
+                            (contasFiltro![index].valor
+                                - contasFiltro![index].valorPago).toStringAsFixed(2),
+                            style: const TextStyle(
                                 fontSize: 20,
                                 fontStyle: FontStyle.italic
                             ),
@@ -145,34 +144,31 @@ class _HomePageState extends State<HomePage> {
                     ],
                   ),
                 ),
-              );
-            },
-          ),
+              ),
+            );
+          },
         );
       },
       future: _buscaContas(),
     );
   }
 
-  final iconsLista = [
-    Icons.assignment_late,
-    Icons.assignment_turned_in,
-  ];
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color.fromRGBO(230, 230, 200, 100),
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title: Text(widget.title),
         backgroundColor: Colors.black,
         actions: <Widget>[
           IconButton(
-            icon: filtroPago==1? Icon(Icons.data_usage) : Icon(Icons.check),
+            icon: filtroPago? const Icon(Icons.data_usage) : const Icon(Icons.check),
             onPressed: (){
-              if(filtroPago==1) filtroPago = 0; else filtroPago = 1;
-              _buscaContas();
+              setState(() {
+                filtroPago = !filtroPago;
+                contas = null;
+              });
             },
           ),
         ],
@@ -181,25 +177,11 @@ class _HomePageState extends State<HomePage> {
         onPressed: () {
           Navigator.pushNamed(context, CADASTRO_CONTA);
         },
-        child: Icon(Icons.add,color: Colors.white,size: 40,),
+        child: const Icon(Icons.add,color: Colors.white,size: 40,),
         backgroundColor: Colors.black,
       ),
-      body: ListView(
-          children: <Widget>[
-            Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.all(
-                    Radius.circular(3)
-                ),
-                color: Colors.white,
-              ),
-              margin: EdgeInsets.all(2),
-              padding: EdgeInsets.all(5),
-              height: MediaQuery.of(context).size.height/1.28,
-              child: BuildFutureList(),
-            ),
-          ],
-        ),
+
+      body: BuildFutureList(),
     );
   }
 }
