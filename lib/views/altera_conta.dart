@@ -4,10 +4,10 @@ import 'package:meus_recebimentos/services/conta_service.dart';
 // import 'package:toast/toast.dart';
 
 class AlteraContaPage extends StatefulWidget {
-  const AlteraContaPage({Key? key, required this.title, this.conta}) : super(key: key);
+  const AlteraContaPage({Key key, this.title, this.conta}) : super(key: key);
 
   final String title;
-  final Conta? conta;
+  final Conta conta;
 
   @override
   _AlteraContaPageState createState() => _AlteraContaPageState(conta: conta);
@@ -15,7 +15,7 @@ class AlteraContaPage extends StatefulWidget {
 
 class _AlteraContaPageState extends State<AlteraContaPage> {
   _AlteraContaPageState({this.conta});
-  final Conta? conta;
+  final Conta conta;
 
   final txtValorPago = TextEditingController();
 
@@ -39,22 +39,22 @@ class _AlteraContaPageState extends State<AlteraContaPage> {
       // Toast.show(mens, context,duration: 3);
     }
 
-    conta!.valorPago += double.parse(txtValorPago.text.replaceAll(',', '.'));
+    conta.valorPago += double.parse(txtValorPago.text.replaceAll(',', '.'));
 
-    if(conta!.valorPago >= conta!.valor) {
-      conta?.pago = 1;
+    if(conta.valorPago >= conta.valor) {
+      conta.pago = 1;
     }
 
-    await ContaService.updateConta(conta!);
+    await ContaService.updateConta(conta);
     // Toast.show("Alteração de conta realizado com sucesso!", context,duration: 3);
     Navigator.pop(context);
   }
 
   Widget buildText(String label, BuildContext context, {
-    IconData? icon,
-    TextEditingController? campoText,
+    IconData icon,
+    TextEditingController campoText,
     TextInputType textInputType = TextInputType.text,
-    bool obscureText = false,var funcao,double? width})
+    bool obscureText = false,var funcao,double width})
   {
     return Container(
       width: width,
@@ -91,11 +91,11 @@ class _AlteraContaPageState extends State<AlteraContaPage> {
                 Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
-                    FlatButton(
-                      padding: EdgeInsets.only(
-                          left: MediaQuery.of(context).size.width/6.1,
-                          right: MediaQuery.of(context).size.width/6.1
-                      ),
+                    TextButton(
+                      // padding: EdgeInsets.only(
+                      //     left: MediaQuery.of(context).size.width/6.1,
+                      //     right: MediaQuery.of(context).size.width/6.1
+                      // ),
                       //color: Colors.white,
                       onPressed: _alteraConta,
                       child: const Text(
@@ -115,25 +115,31 @@ class _AlteraContaPageState extends State<AlteraContaPage> {
             Container(
               alignment: Alignment.centerLeft,
               padding: const EdgeInsets.only(top: 10,left: 10),
-              child: Text(conta!.nome.toUpperCase()
+              child: Text(conta.nome.toUpperCase()
                 ,style: const TextStyle(fontSize: 30,color: Colors.deepPurpleAccent)),
             ),
             Container(
               alignment: Alignment.centerLeft,
               padding: const EdgeInsets.only(top: 10,left: 10),
-              child: Text(conta!.descricao.toUpperCase()
+              child: Text(conta.descricao.toUpperCase()
+                  ,style: const TextStyle(fontSize: 18,color: Colors.grey)),
+            ),
+            Container(
+              alignment: Alignment.centerLeft,
+              padding: const EdgeInsets.only(top: 10,left: 10),
+              child: Text(conta.dataVencimento
                   ,style: const TextStyle(fontSize: 18,color: Colors.grey)),
             ),
             Container(
               alignment: Alignment.centerRight,
               padding: const EdgeInsets.only(top: 25,right: 10),
-              child: Text('VALOR: ' + conta!.valor.toStringAsFixed(2)
+              child: Text('VALOR: ' + conta.valor.toStringAsFixed(2)
                   ,style: const TextStyle(fontSize: 24,color: Colors.black)),
             ),
             Container(
               alignment: Alignment.centerRight,
               padding: const EdgeInsets.only(right: 10),
-              child: Text('VALOR PAGO: ' + conta!.valorPago.toStringAsFixed(2)
+              child: Text('VALOR PAGO: ' + conta.valorPago.toStringAsFixed(2)
                   ,style: const TextStyle(fontSize: 15,color: Colors.green,fontStyle: FontStyle.italic)),
             ),
             Container(
@@ -141,7 +147,7 @@ class _AlteraContaPageState extends State<AlteraContaPage> {
               alignment: Alignment.centerRight,
               padding: const EdgeInsets.only(right: 10),
               margin: const EdgeInsets.only(bottom: 20),
-              child: Text('RESTA: ' + (conta!.valor-conta!.valorPago).toStringAsFixed(2)
+              child: Text('RESTA: ' + (conta.valor-conta.valorPago).toStringAsFixed(2)
                   ,style: const TextStyle(fontSize: 24,color: Colors.white,fontStyle: FontStyle.italic)),
             ),
             buildText('Valor Pago', context,campoText: txtValorPago,textInputType: TextInputType.number),

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:meus_recebimentos/geral.dart';
 import 'package:meus_recebimentos/main.dart';
 import 'package:meus_recebimentos/model/usuario_model.dart';
@@ -7,7 +6,7 @@ import 'package:meus_recebimentos/services/usuario_service.dart';
 // import 'package:toast/toast.dart';
 
 class CadastroUsuarioPage extends StatefulWidget {
-  const CadastroUsuarioPage({Key? key, required this.title}) : super(key: key);
+  const CadastroUsuarioPage({Key key, this.title}) : super(key: key);
 
   final String title;
 
@@ -48,14 +47,14 @@ class _CadastroUsuarioPageState extends State<CadastroUsuarioPage> {
       await UsuarioService.addUsuario(usuario);
       // Toast.show("Cadastro de Usuario realizado com sucesso!", context,duration: 3);
       Navigator.popAndPushNamed(context, MENU);
-    }else if(usuarioAcessado!.senha==txtSenha.text){
+    }else if(usuarioAcessado.senha==txtSenha.text){
       // Toast.show("Bem Vindo, " + usuarioAcessado!.nome + "!", context,duration: 3);
       Navigator.popAndPushNamed(context, MENU);
     }else{}
       // Toast.show('Senha Incorreta!', context,duration: 3);
   }
   Future<void> _buscaUsuario() async{
-    List<Usuario>? usuarios;
+    List<Usuario> usuarios;
     var res = await UsuarioService.getAllUsuario();
 
     usuarios = res.cast<Usuario>();
@@ -73,10 +72,10 @@ class _CadastroUsuarioPageState extends State<CadastroUsuarioPage> {
     _buscaUsuario();
   }
   Widget buildText(String label, BuildContext context, {
-    IconData? icon,
-    TextEditingController? campoText,
+    IconData icon,
+    TextEditingController campoText,
     TextInputType textInputType = TextInputType.text,
-    bool obscureText = false,var funcao,double? width})
+    bool obscureText = false,var funcao,double width})
   {
     return Container(
       width: width,
@@ -125,7 +124,7 @@ class _CadastroUsuarioPageState extends State<CadastroUsuarioPage> {
                     Row(
                       children: <Widget>[
                         Text(
-                          usuarioAcessado==null?'':usuarioAcessado!.nome.toUpperCase(),
+                          usuarioAcessado==null?'':usuarioAcessado.nome.toUpperCase(),
                           style: const TextStyle(fontSize: 50,color: Colors.white),
                         ),
                       ],

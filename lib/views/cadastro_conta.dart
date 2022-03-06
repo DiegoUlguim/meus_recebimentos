@@ -1,3 +1,4 @@
+import 'package:extended_masked_text/extended_masked_text.dart';
 import 'package:flutter/material.dart';
 import 'package:meus_recebimentos/model/conta_model.dart';
 import 'package:meus_recebimentos/services/conta_service.dart';
@@ -7,7 +8,7 @@ import '../util_widget.dart';
 // import 'package:toast/toast.dart';
 
 class CadastroContaPage extends StatefulWidget {
-  const CadastroContaPage({Key? key, required this.title}) : super(key: key);
+  const CadastroContaPage({Key key, this.title}) : super(key: key);
 
   final String title;
 
@@ -19,8 +20,8 @@ class _CadastroContaPageState extends State<CadastroContaPage> {
 
   final txtNome = TextEditingController();
   final txtDescricao = TextEditingController();
-  final txtValor = TextEditingController();
-  final txtValorPago = TextEditingController();
+  final txtValor = MoneyMaskedTextController();
+  final txtValorPago = MoneyMaskedTextController();
   DateTime dataPrimeiroPagamento=DateTime.now();
   final txtQuantParcelas = TextEditingController();
   final txtDataVencimento = TextEditingController();
@@ -43,101 +44,81 @@ class _CadastroContaPageState extends State<CadastroContaPage> {
   ];
   int _currentParcelas = 1;
 
-  void changedDropDownItemParcelas(int? selectedStatus) {
-    setState(() {
-      _currentParcelas = selectedStatus??1;
-    });
+  void changedDropDownItemParcelas(int selectedStatus) {
+    _currentParcelas = selectedStatus??1;
+    _atualizaInformacoes();
+    setState(() {});
+  }
+  @override
+  void initState() {
+    super.initState();
+    txtValor.updateValue(0);
+    txtValorPago.updateValue(0);
   }
 
   String _validaConta(){
-    if(txtNome.text.trim()=="") return "Favor informar o nome";
-    if(txtValor.text.trim()=="")  txtValor.text = "0";
-    if(txtValorPago.text.trim()=="")  txtValorPago.text = "0";
+    String validacao = '';
+    if(txtNome.text.trim()=="") validacao += "Favor informar o nome!\n";
+    // if(txtValor.text.trim()=="")  txtValor.updateValue(0);
+    // if(txtValorPago.text.trim()=="")  txtValorPago.updateValue(0);
 
-    if(txtValor.text.contains("-")){
-      return "O valor não pode ser negativo!";
-    }
-    if(txtValorPago.text.contains("-")){
-      return "O valor pago não pode ser negativo!";
-    }
+    // if(txtValor.text.contains("-")){
+    //   validacao += "O valor não pode ser negativo!\n";
+    // }
+    // if(txtValorPago.text.contains("-")){
+    //   validacao += "O valor pago não pode ser negativo!\n";
+    // }
 
-    List<String> valorTeste = txtValor.text.split(".");
-    if(valorTeste.length > 2){
-      return "O valor não pode conter mais de um ponto!";
-    }
-    valorTeste = txtValorPago.text.split(".");
-    if(valorTeste.length > 2){
-      return "O valor pago não pode conter mais de um ponto!";
-    }
+    // List<String> valorTeste = txtValor.text.split(".");
+    // if(valorTeste.length > 2){
+    //   validacao += "O valor não pode conter mais de um ponto!\n";
+    // }
+    // valorTeste = txtValorPago.text.split(".");
+    // if(valorTeste.length > 2){
+    //   validacao += "O valor pago não pode conter mais de um ponto!";
+    // }
 
-    return "";
+    return validacao;
   }
 
 
-  Future<void> _adicionaConta() async{
+  void _adicionaConta() async{
     String mens = _validaConta();
     if( mens != ""){
-      // Toast.show(mens, context,duration: 3);
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(mens)));
       return;
     }
-    Conta conta = Conta(
-        txtNome.text.trim(),
-        double.parse(txtValor.text.replaceAll(',', '.')),
-        (DateTime.now().toIso8601String()).substring(0, 10),
-        (DateTime.now().toIso8601String()).substring(0, 10),
-        0,
-        int.parse(txtQuantParcelas.text),
-        descricao: txtDescricao.text.trim(),
-        valorPago: double.parse(txtValorPago.text.replaceAll(',', '.')),
-    );
-    await ContaService.addConta(conta);
-    // Toast.show("Cadastro de conta realizado com sucesso!", context,duration: 3);
+    await ContaService.addConta(contas.first);
+    ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Cadastro de conta realizado com sucesso!')));
     Navigator.pop(context);
   }
 
-  Widget buildText(String label, BuildContext context, {
-    IconData? icon,
-    TextEditingController? campoText,
-    TextInputType textInputType = TextInputType.text,
-    bool obscureText = false,var funcao, double? width})
-  {
-    return Container(
-      width: width,
-      margin: const EdgeInsets.only(right: 10.0,left: 10.0),
-      child: TextField(
-        controller: campoText,
-        keyboardType: textInputType,
-        obscureText: obscureText,
-        decoration: InputDecoration(
-          labelText: label,
-        ),
-        onChanged: funcao,
-      ),
-    );
-  }
+
   void _atualizaInformacoes(){
 
     List<Conta> contasVar = [];
-    int parcelas = _currentParcelas;
-    for (int parcela = 0;parcela<parcelas;parcela++){
+    DateTime _data = dataPrimeiroPagamento;
+    for (int parcela = 0;parcela<_currentParcelas;parcela++){
       Conta conta = Conta(
         txtNome.text.trim(),
-        txtValor.text.trim()==''?0:double.parse(txtValor.text.replaceAll(',', '.')),
-        (DateTime.now().toIso8601String()).substring(0, 10),
-        (DateTime.now().toIso8601String()).substring(0, 10),
+        txtValor.numberValue,
+        _data.toIso8601String().substring(0, 10),
+        null,
         parcela+1,
         _currentParcelas,
         descricao: txtDescricao.text.trim(),
-        valorPago: txtValor.text.trim()==''?0:double.parse(txtValorPago.text.replaceAll(',', '.')),
+        valorPago: txtValorPago.numberValue,
       );
       contasVar.add(conta);
+      _data = DateTime(_data.year, _data.month + 1, _data.day);
     }
     contas = contasVar;
   }
 
   @override
   Widget build(BuildContext context) {
-    _atualizaInformacoes();
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -149,34 +130,6 @@ class _CadastroContaPageState extends State<CadastroContaPage> {
         child: const Icon(Icons.save,size: 30,color: Colors.white,),
         onPressed: _adicionaConta,
       ),
-      // bottomNavigationBar: BottomAppBar(
-      //   child: Container(
-      //       color: Colors.black,
-      //       height: MediaQuery.of(context).size.height/12.0,
-      //       child: Row(
-      //         mainAxisAlignment: MainAxisAlignment.spaceAround,
-      //         children: <Widget>[
-      //           Column(
-      //             mainAxisAlignment: MainAxisAlignment.center,
-      //             children: <Widget>[
-      //               FlatButton(
-      //                 padding: EdgeInsets.only(
-      //                     left: MediaQuery.of(context).size.width/6.1,
-      //                     right: MediaQuery.of(context).size.width/6.1
-      //                 ),
-      //                 //color: Colors.white,
-      //                 onPressed: _adicionaConta,
-      //                 child: const Text(
-      //                   "CADASTRAR",
-      //                   style: TextStyle(color: Colors.white,fontSize: 24),
-      //                 ),
-      //               ),
-      //             ],
-      //           ),
-      //         ],
-      //       )
-      //   ),
-      // ),
       body: SingleChildScrollView(
         child: Column(
           children: <Widget>[
@@ -218,11 +171,15 @@ class _CadastroContaPageState extends State<CadastroContaPage> {
                             icon: const Icon(Icons.date_range),
                             onPressed: (){
                               showDatePicker(context: context,
-                                  initialDate: DateTime.now(),
+                                  initialDate: dataPrimeiroPagamento,
                                   firstDate: DateTime(2018),
                                   lastDate: DateTime(2030)
-                              ).then((value) => {
-                                setState((){dataPrimeiroPagamento = value!;})
+                              ).then((value) {
+                                if(value!=null){
+                                  dataPrimeiroPagamento = value;
+                                  _atualizaInformacoes();
+                                  setState((){});
+                                }
                               });
                             },
                           ),
@@ -241,7 +198,7 @@ class _CadastroContaPageState extends State<CadastroContaPage> {
               alignment: Alignment.center,
               child: const Text('Parcelas',style: TextStyle(color: Colors.white,fontSize: 15),),
             ),
-            Container(
+            SizedBox(
               height: 300,
               child: ListView.builder(
                 itemCount: contas.length,

@@ -51,7 +51,7 @@ class DatabaseCreator{
   ];
 
   static void databaseLog(String functionName, String sql,
-      [List<Map<String, dynamic>>? selectQueryResult, int? insertAndUpdateQueryResult]){
+      [List<Map<String, dynamic>> selectQueryResult, int insertAndUpdateQueryResult]){
     print(functionName);
     print(sql);
     if(selectQueryResult !=null){

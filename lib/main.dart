@@ -6,7 +6,6 @@ import 'package:meus_recebimentos/views/cadastro_conta.dart';
 import 'package:meus_recebimentos/views/home.dart';
 import 'package:meus_recebimentos/views/totais.dart';
 import 'package:meus_recebimentos/views/usuario_login.dart';
-// import 'package:pwa/client.dart' as pwa;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -14,18 +13,10 @@ void main() async {
   runApp(const Menu());
 }
 
-Usuario? usuarioAcessado;
-
-// Object consObject; // variavel para receber objeto e mandar informacoes para proxima tela
-//
-// Object getConsObject(){
-//   Object object = consObject;
-//   consObject = null;
-//   return object;
-// }
+Usuario usuarioAcessado;
 
 class Menu extends StatelessWidget {
-  const Menu({Key? key}) : super(key: key);
+  const Menu({Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -58,7 +49,7 @@ class Menu extends StatelessWidget {
 }
 
 class MenuPage extends StatefulWidget {
-  const MenuPage({Key? key, required this.title}) : super(key: key);
+  const MenuPage({Key key, this.title}) : super(key: key);
 
   final String title;
 
@@ -100,15 +91,17 @@ class _MenuPageState extends State<MenuPage> {
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
-            title: Text('Inicio',
-              style: TextStyle(color: Colors.white70),
-            ),
+            label: 'Inicio'
+            // Text('Inicio',
+            //   style: TextStyle(color: Colors.white70),
+            // ),
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.poll),
-            title: Text('Totais',
-              style: TextStyle(color: Colors.white70),
-            ),
+            label: 'Totais'
+            // Text('Totais',
+            //   style: TextStyle(color: Colors.white70),
+            // ),
           ),
         ],
         onTap: (index){

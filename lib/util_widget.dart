@@ -12,3 +12,24 @@ Widget textFormatDropDown(String text){
     child: Text(text),
   );
 }
+Widget buildText(String label, BuildContext context, {
+  IconData icon,
+  TextEditingController campoText,
+  TextInputType textInputType = TextInputType.text,
+  bool obscureText = false,var funcao, double width})
+{
+  return Container(
+    width: width,
+    margin: const EdgeInsets.only(right: 10.0,left: 10.0),
+    child: TextField(
+      controller: campoText,
+      keyboardType: textInputType,
+      obscureText: obscureText,
+      textCapitalization: TextCapitalization.sentences,
+      decoration: InputDecoration(
+        labelText: label,
+      ),
+      onChanged: funcao,
+    ),
+  );
+}

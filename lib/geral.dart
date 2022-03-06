@@ -12,7 +12,7 @@ const String ALTERA_CONTA = '/alteraConta';
 const String CADASTRO_LOGIN = '/';
 
 
-Color? retornaCorConta(Conta conta){
+Color retornaCorConta(Conta conta){
   Color cor = Colors.grey;
   if(conta.pago==1){
     cor=Colors.green;
@@ -24,4 +24,9 @@ String retornaDataVisualFormat(DateTime data){
   return data.day.toString().padLeft(2, '0')
       +"/"+data.month.toString().padLeft(2, '0')
       +"/"+data.year.toString().padLeft(2, '0');
+}
+String removeMarcara(String valor){
+  valor = valor.replaceAll("R\$", "");
+  valor = valor.replaceAll("(", "").replaceAll(")", "").replaceAll("-", "").replaceAll("/", "").replaceAll(".", "").replaceAll(" ", "").trim();
+  return valor;
 }

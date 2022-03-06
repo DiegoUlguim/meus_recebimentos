@@ -1,7 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.company.meus_recebimentos.meus_recebimentos">
+    package="com.company.meus_recebimentos">
    <application
         android:label="meus_recebimentos"
+        android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"

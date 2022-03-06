@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:meus_recebimentos/services/conta_service.dart';
 
 class TotaisPage extends StatefulWidget {
-  TotaisPage({Key? key, required this.title}) : super(key: key);
+  TotaisPage({Key key, this.title}) : super(key: key);
 
   final String title;
 
@@ -12,9 +12,9 @@ class TotaisPage extends StatefulWidget {
 
 class _TotaisPageState extends State<TotaisPage> {
 
-  String? total;
-  String? restante;
-  String? totalPago;
+  String total;
+  String restante;
+  String totalPago;
 
   Future<void> _buscaTotais() async{
     var vTotal = await ContaService.retornaTotal();
@@ -23,7 +23,7 @@ class _TotaisPageState extends State<TotaisPage> {
     setState(() {
       total = vTotal;
       restante = vRestante;
-      totalPago = (double.parse(total!) - double.parse(restante!)).toStringAsFixed(2);
+      totalPago = (double.parse(total) - double.parse(restante)).toStringAsFixed(2);
     });
   }
 
@@ -52,7 +52,7 @@ class _TotaisPageState extends State<TotaisPage> {
               alignment: Alignment.centerRight,
               padding: EdgeInsets.only(right: 10),
               margin: EdgeInsets.only(bottom: 20,top: 20),
-              child: Text('TOTAL DEVEDORES: ' + total!
+              child: Text('TOTAL DEVEDORES: ' + total
                   ,style: TextStyle(fontSize: 24,color: Colors.white,fontStyle: FontStyle.italic)),
             ),
             Container(
@@ -60,7 +60,7 @@ class _TotaisPageState extends State<TotaisPage> {
               alignment: Alignment.centerRight,
               padding: EdgeInsets.only(right: 10),
               margin: EdgeInsets.only(bottom: 20),
-              child: Text('TOTAL RESTANTE: ' + restante!
+              child: Text('TOTAL RESTANTE: ' + restante
                   ,style: TextStyle(fontSize: 24,color: Colors.white,fontStyle: FontStyle.italic)),
             ),
             Container(
@@ -68,7 +68,7 @@ class _TotaisPageState extends State<TotaisPage> {
               alignment: Alignment.centerRight,
               padding: EdgeInsets.only(right: 10),
               margin: EdgeInsets.only(bottom: 20),
-              child: Text('TOTAL PAGO: ' + totalPago!
+              child: Text('TOTAL PAGO: ' + totalPago
                   ,style: TextStyle(fontSize: 24,color: Colors.white,fontStyle: FontStyle.italic)),
             ),
           ],

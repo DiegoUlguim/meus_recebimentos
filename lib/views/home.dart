@@ -1,15 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:meus_recebimentos/geral.dart';
 import 'package:meus_recebimentos/model/conta_model.dart';
-import 'package:meus_recebimentos/persistence/db.dart';
 import 'package:meus_recebimentos/services/conta_service.dart';
 import 'package:meus_recebimentos/views/altera_conta.dart';
-// import 'package:toast/toast.dart';
-
-import '../main.dart';
 
 class HomePage extends StatefulWidget {
-  HomePage({Key? key, required this.title}) : super(key: key);
+  HomePage({Key key, this.title}) : super(key: key);
 
   final String title;
 
@@ -18,8 +14,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  List<Conta>? contas;
-  List<Conta>? contasFiltro;
+  List<Conta> contas;
+  List<Conta> contasFiltro;
 
   bool filtroPago = false;
 
@@ -32,8 +28,10 @@ class _HomePageState extends State<HomePage> {
       });
     }
   }
-  Future<void> _deletarConta(int id) async{
-    await ContaService.deleteConta(id);
+  void _deletarConta(Conta conta) async{
+    await ContaService.deleteConta(conta.id);
+    contas.remove(conta);
+    setState(() {});
   }
 
   @override
@@ -55,16 +53,17 @@ class _HomePageState extends State<HomePage> {
           );
         }
         return ListView.builder(
-          itemCount: contasFiltro!.length,
+          itemCount: contasFiltro.length,
           itemBuilder: (context,int index){
             return TextButton(
+              onLongPress: (){_deletarConta(contasFiltro[index]);},
               onPressed: (){
-                if(contasFiltro![index].valorPago >= contasFiltro![index].valor) {
+                if(contasFiltro[index].valorPago >= contasFiltro[index].valor) {
                   // Toast.show('Conta Já Foi Paga!', context,duration: 3);
                 } else{
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => AlteraContaPage(title: '', conta: contasFiltro![index],)),
+                    MaterialPageRoute(builder: (context) => AlteraContaPage(title: '', conta: contasFiltro[index],)),
                   ).then((value) {
                     setState(() {
                       contas = null;
@@ -86,7 +85,7 @@ class _HomePageState extends State<HomePage> {
                   borderRadius: const BorderRadius.all(
                       Radius.circular(15)
                   ),
-                  color: retornaCorConta(contasFiltro![index]),
+                  color: retornaCorConta(contasFiltro[index]),
                 ),
                 padding: const EdgeInsets.only(left: 10),
                 width: MediaQuery.of(context).size.width,
@@ -106,13 +105,13 @@ class _HomePageState extends State<HomePage> {
                       Row(
                         children: [
                           Text(
-                            contasFiltro![index].nome,
+                            contasFiltro[index].nome,
                             style: const TextStyle(
                                 fontSize: 30
                             ),
                           ),
                           Text(
-                            ' '+contasFiltro![index].quantParcelas.toString(),
+                            ' '+contasFiltro[index].quantParcelas.toString(),
                             style: const TextStyle(
                                 fontSize: 30
                             ),
@@ -124,16 +123,16 @@ class _HomePageState extends State<HomePage> {
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: <Widget>[
                           Text(
-                            ""+contasFiltro![index].valor.toStringAsFixed(2)
-                                +" - "+contasFiltro![index].valorPago.toStringAsFixed(2)
+                            ""+contasFiltro[index].valor.toStringAsFixed(2)
+                                +" - "+contasFiltro[index].valorPago.toStringAsFixed(2)
                                 + " = ",
                             style: const TextStyle(
                                 fontSize: 17
                             ),
                           ),
                           Text(
-                            (contasFiltro![index].valor
-                                - contasFiltro![index].valorPago).toStringAsFixed(2),
+                            (contasFiltro[index].valor
+                                - contasFiltro[index].valorPago).toStringAsFixed(2),
                             style: const TextStyle(
                                 fontSize: 20,
                                 fontStyle: FontStyle.italic
@@ -177,11 +176,18 @@ class _HomePageState extends State<HomePage> {
         onPressed: () {
           Navigator.pushNamed(context, CADASTRO_CONTA);
         },
+
         child: const Icon(Icons.add,color: Colors.white,size: 40,),
         backgroundColor: Colors.black,
       ),
 
-      body: BuildFutureList(),
+      body: RefreshIndicator(
+        onRefresh: ()async{
+          contas = null;
+          setState(() {});
+        },
+        child: BuildFutureList(),
+      ),
     );
   }
 }

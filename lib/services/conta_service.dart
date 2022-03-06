@@ -5,7 +5,7 @@ class ContaService{
  static Future<List<Conta>> getAllConta({bool pago=false}) async{
    final sql = '''SELECT * FROM ${DatabaseCreator.contaTable}
    WHERE ${DatabaseCreator.pago} == ${pago}''';
-   final data = await db!.rawQuery(sql);
+   final data = await db.rawQuery(sql);
    List<Conta> contas = [];
 
    for (final node in data){
@@ -18,7 +18,7 @@ class ContaService{
  static Future<Conta> getConta(int id) async{
    final sql = '''SELECT * FROM ${DatabaseCreator.contaTable}
    WHERE ${DatabaseCreator.id} == $id''';
-   final data =await db!.rawQuery(sql);
+   final data =await db.rawQuery(sql);
 
    final conta = Conta.fromJson(data[0]);
    return conta;
@@ -50,7 +50,7 @@ class ContaService{
       ${conta.quantParcelas}
    )''';
    
-   final result = await db!.rawInsert(sql);
+   final result = await db.rawInsert(sql);
    DatabaseCreator.databaseLog('Add Conta', sql,[], result);
  }
 
@@ -58,7 +58,7 @@ class ContaService{
    final sql = '''DELETE FROM ${DatabaseCreator.contaTable}
    WHERE ${DatabaseCreator.id} == ${id}''';
 
-   final result = await db!.rawDelete(sql);
+   final result = await db.rawDelete(sql);
    DatabaseCreator.databaseLog('Delete Conta', sql,[],result);
  }
 
@@ -77,31 +77,31 @@ class ContaService{
     
     WHERE ${DatabaseCreator.id} = ${conta.id}''';
 
-   final result = await db!.rawUpdate(sql);
+   final result = await db.rawUpdate(sql);
    DatabaseCreator.databaseLog('Update Conta', sql,[],result);
  }
 
  static Future<int> contaCount() async{
-   final data = await db!.rawQuery('''SELECT COUNT(*) FROM ${DatabaseCreator.contaTable}''');
+   final data = await db.rawQuery('''SELECT COUNT(*) FROM ${DatabaseCreator.contaTable}''');
 
-   int? count = data[0].values.elementAt(0) as int?;
-   return count!;
+   int count = data[0].values.elementAt(0) as int;
+   return count;
  }
 
  static Future<String> retornaTotal() async{
-   final data = await db!.rawQuery('''SELECT SUM(${DatabaseCreator.valor}) 
+   final data = await db.rawQuery('''SELECT SUM(${DatabaseCreator.valor}) 
    FROM ${DatabaseCreator.contaTable}
    WHERE ${DatabaseCreator.pago}=0''');
 
-   return double.parse(data[0].values.elementAt(0)!.toString()).toStringAsFixed(2);
+   return double.parse(data[0].values.elementAt(0).toString()).toStringAsFixed(2);
  }
 
  static Future<String> retornaRestante() async{
-   final data = await db!.rawQuery('''SELECT SUM(${DatabaseCreator.valor}- ${DatabaseCreator.valorPago}) 
+   final data = await db.rawQuery('''SELECT SUM(${DatabaseCreator.valor}- ${DatabaseCreator.valorPago}) 
    FROM ${DatabaseCreator.contaTable}
    WHERE ${DatabaseCreator.pago}=0''');
 
-   return double.parse((data[0].values.elementAt(0))!.toString()).toStringAsFixed(2);
+   return double.parse((data[0].values.elementAt(0)).toString()).toStringAsFixed(2);
  }
 
 }
