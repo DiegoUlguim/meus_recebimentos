@@ -4,18 +4,21 @@ import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
 var db;
-int dbAtual = 2;
+//int dbAtual = 6;
 
 class DatabaseCreator{
   static const contaTable = 'conta';
+  static const pagamentoTable = 'pagamento';
   static const usuarioTable = 'usuario';
 
   static const id = 'id';
+  static const idConta = 'idConta';
   static const nome = 'nome';
   static const descricao = 'descricao';
   static const valor = 'valor';
   static const valorPago = 'valorPago';
   static const pago = 'pago';
+  static const data = 'data';
   static const dataPagamento = 'dataPagamento';
   static const dataVencimento = 'dataVencimento';
   static const parcela = 'parcela';
@@ -48,6 +51,15 @@ class DatabaseCreator{
     ADD COLUMN $parcela INTEGER;''',
     '''ALTER TABLE $contaTable 
     ADD COLUMN $quantParcelas INTEGER;''',
+    '''CREATE TABLE $pagamentoTable
+    (
+      $id INTEGER PRIMARY KEY AUTOINCREMENT,
+      $idConta INTEGER NOT NULL,
+      $valor REAL NOT NULL,
+      $data TEXT,
+      $parcela INTEGER NOT NULL,
+      FOREIGN KEY ($idConta) REFERENCES $contaTable ($id) ON DELETE NO ACTION ON UPDATE NO ACTION
+    )''',
   ];
 
   static void databaseLog(String functionName, String sql,
@@ -87,17 +99,22 @@ class DatabaseCreator{
   Future<void> initDatabase() async{
     final path = await getDatabasePath('conta_db');
     db = await openDatabase(path, version: migrationScripts.length,
-        onCreate: onCreate,
-        onUpgrade: (Database db, int oldVersion, int newVersion) async {
-          for (var i = oldVersion; i <= newVersion-1; i++) {
-            await db.execute(migrationScripts[i]);
-          }}
-
-          );
+        onCreate: _onCreate,
+        onUpgrade: _onUpgrade,
+      onConfigure: _onConfigure,
+    );
     print(db);
   }
+  Future<void> _onConfigure(Database db) async {
+    await db.execute('PRAGMA foreign_keys = ON');
+  }
+  Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
+    for (var i = oldVersion; i <= newVersion-1; i++) {
+      await db.execute(migrationScripts[i]);
+    }
+  }
 
-  Future<void> onCreate(Database db,int version) async {
+  Future<void> _onCreate(Database db,int version) async {
     for (var i = 0; i <= version-1; i++) {
       await db.execute(migrationScripts[i]);
     }

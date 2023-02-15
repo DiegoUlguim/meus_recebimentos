@@ -37,7 +37,7 @@ class Menu extends StatelessWidget {
         TOTAIS: (BuildContext context) =>
           TotaisPage(title: 'Totais'),
         CADASTRO_CONTA: (BuildContext context) =>
-          const CadastroContaPage(title: 'Cadastro de Conta'),
+          const CadastroContaPage(title: 'Adicionar Conta'),
         CADASTRO_LOGIN: (BuildContext context) =>
           CadastroUsuarioPage(title: 'Cadastro de Usuario'),
       },
@@ -79,19 +79,34 @@ class _MenuPageState extends State<MenuPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.pushNamed(context, CADASTRO_CONTA);
+        },
+
+        // label: const Text('Adicionar Conta'),
+        child: const Icon(
+          Icons.add,
+          color: Colors.white,
+          size: 40,
+        ),
+        backgroundColor: Colors.green,
+      ),
       body: tabs[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
+        selectedItemColor: Colors.white,
         selectedIconTheme: const IconThemeData(
           color: Colors.white,
-          size: 35
+          size: 28
         ),
         backgroundColor: Colors.black,
         unselectedItemColor: Colors.white60,
         items: const [
           BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Inicio'
+            icon: Icon(Icons.line_weight_sharp),
+            label: 'Contas'
             // Text('Inicio',
             //   style: TextStyle(color: Colors.white70),
             // ),

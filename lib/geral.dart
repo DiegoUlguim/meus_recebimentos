@@ -13,7 +13,7 @@ const String CADASTRO_LOGIN = '/';
 
 
 Color retornaCorConta(Conta conta){
-  Color cor = Colors.grey;
+  Color cor = Colors.orange;
   if(conta.pago==1){
     cor=Colors.green;
   }

@@ -1,31 +1,36 @@
 import 'package:meus_recebimentos/model/conta_model.dart';
 import 'package:meus_recebimentos/persistence/db.dart';
 
-class ContaService{
- static Future<List<Conta>> getAllConta({bool pago=false}) async{
-   final sql = '''SELECT * FROM ${DatabaseCreator.contaTable}
-   WHERE ${DatabaseCreator.pago} == ${pago}''';
-   final data = await db.rawQuery(sql);
-   List<Conta> contas = [];
+class ContaService {
+  static Future<List<Conta>> getAllConta({bool pago = false}) async {
+    final sql =
+        '''SELECT * FROM ${DatabaseCreator.contaTable} WHERE ${DatabaseCreator.pago} = ${pago?1:0}''';
+    final data = await db.rawQuery(sql);
+    List<Conta> contas = [];
+    if (data != null) {
+      for (final node in data) {
+        if(node!=null){
+          final conta = Conta.fromJson(node);
+          contas.add(conta);
+        }
 
-   for (final node in data){
-     final conta = Conta.fromJson(node);
-     contas.add(conta);
-   }
-   return contas;
- }
+      }
+    }
 
- static Future<Conta> getConta(int id) async{
-   final sql = '''SELECT * FROM ${DatabaseCreator.contaTable}
+    return contas;
+  }
+
+  static Future<Conta> getConta(int id) async {
+    final sql = '''SELECT * FROM ${DatabaseCreator.contaTable}
    WHERE ${DatabaseCreator.id} == $id''';
-   final data =await db.rawQuery(sql);
+    final data = await db.rawQuery(sql);
 
-   final conta = Conta.fromJson(data[0]);
-   return conta;
- }
+    final conta = Conta.fromJson(data[0]);
+    return conta;
+  }
 
- static Future<void> addConta(Conta conta) async{
-   final sql = '''INSERT INTO ${DatabaseCreator.contaTable}
+  static Future<void> addConta(Conta conta) async {
+    final sql = '''INSERT INTO ${DatabaseCreator.contaTable}
    (
       ${DatabaseCreator.nome},
       ${DatabaseCreator.descricao},
@@ -49,21 +54,21 @@ class ContaService{
       ${conta.parcela},
       ${conta.quantParcelas}
    )''';
-   
-   final result = await db.rawInsert(sql);
-   DatabaseCreator.databaseLog('Add Conta', sql,[], result);
- }
 
- static Future<void> deleteConta(int id) async{
-   final sql = '''DELETE FROM ${DatabaseCreator.contaTable}
+    final result = await db.rawInsert(sql);
+    DatabaseCreator.databaseLog('Add Conta', sql, [], result);
+  }
+
+  static Future<void> deleteConta(int id) async {
+    final sql = '''DELETE FROM ${DatabaseCreator.contaTable}
    WHERE ${DatabaseCreator.id} == ${id}''';
 
-   final result = await db.rawDelete(sql);
-   DatabaseCreator.databaseLog('Delete Conta', sql,[],result);
- }
+    final result = await db.rawDelete(sql);
+    DatabaseCreator.databaseLog('Delete Conta', sql, [], result);
+  }
 
- static Future<void> updateConta(Conta conta) async{
-   final sql = '''UPDATE ${DatabaseCreator.contaTable}
+  static Future<void> updateConta(Conta conta) async {
+    final sql = '''UPDATE ${DatabaseCreator.contaTable}
    SET 
     ${DatabaseCreator.nome} = '${conta.nome}',
     ${DatabaseCreator.descricao} = '${conta.descricao}',
@@ -77,31 +82,38 @@ class ContaService{
     
     WHERE ${DatabaseCreator.id} = ${conta.id}''';
 
-   final result = await db.rawUpdate(sql);
-   DatabaseCreator.databaseLog('Update Conta', sql,[],result);
- }
+    final result = await db.rawUpdate(sql);
+    DatabaseCreator.databaseLog('Update Conta', sql, [], result);
+  }
 
- static Future<int> contaCount() async{
-   final data = await db.rawQuery('''SELECT COUNT(*) FROM ${DatabaseCreator.contaTable}''');
+  static Future<int> contaCount() async {
+    final data = await db
+        .rawQuery('''SELECT COUNT(*) FROM ${DatabaseCreator.contaTable}''');
 
-   int count = data[0].values.elementAt(0) as int;
-   return count;
- }
+    int count = data[0].values.elementAt(0) as int;
+    return count;
+  }
 
- static Future<String> retornaTotal() async{
-   final data = await db.rawQuery('''SELECT SUM(${DatabaseCreator.valor}) 
+  static Future<String> retornaTotal() async {
+    final data = await db.rawQuery('''SELECT SUM(${DatabaseCreator.valor}) 
    FROM ${DatabaseCreator.contaTable}
    WHERE ${DatabaseCreator.pago}=0''');
+    if(data[0].values.elementAt(0)==null){
+      return '0';
+    }
+    return double.parse(data[0].values.elementAt(0).toString())
+        .toStringAsFixed(2);
+  }
 
-   return double.parse(data[0].values.elementAt(0).toString()).toStringAsFixed(2);
- }
-
- static Future<String> retornaRestante() async{
-   final data = await db.rawQuery('''SELECT SUM(${DatabaseCreator.valor}- ${DatabaseCreator.valorPago}) 
+  static Future<String> retornaRestante() async {
+    final data = await db.rawQuery(
+        '''SELECT SUM(${DatabaseCreator.valor}- ${DatabaseCreator.valorPago}) 
    FROM ${DatabaseCreator.contaTable}
    WHERE ${DatabaseCreator.pago}=0''');
-
-   return double.parse((data[0].values.elementAt(0)).toString()).toStringAsFixed(2);
- }
-
+    if(data[0].values.elementAt(0)==null){
+      return '0';
+    }
+    return double.parse((data[0].values.elementAt(0)).toString())
+        .toStringAsFixed(2);
+  }
 }

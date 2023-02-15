@@ -1,5 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.company.meus_recebimentos">
+    <uses-permission android:name="android.permission.USE_BIOMETRIC"/>
+
    <application
         android:label="meus_recebimentos"
         android:name="${applicationName}"

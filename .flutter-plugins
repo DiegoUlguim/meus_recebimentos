@@ -1,2 +1,7 @@
 # This is a generated file; do not edit or check into version control.
-sqflite=C:\\Users\\diego\\flutter\\.pub-cache\\hosted\\pub.dartlang.org\\sqflite-2.0.2\\
+flutter_plugin_android_lifecycle=C:\\Users\\diego\\AppData\\Local\\Pub\\Cache\\hosted\\pub.dartlang.org\\flutter_plugin_android_lifecycle-2.0.7\\
+local_auth=C:\\Users\\diego\\AppData\\Local\\Pub\\Cache\\hosted\\pub.dartlang.org\\local_auth-2.1.2\\
+local_auth_android=C:\\Users\\diego\\AppData\\Local\\Pub\\Cache\\hosted\\pub.dartlang.org\\local_auth_android-1.0.15\\
+local_auth_ios=C:\\Users\\diego\\AppData\\Local\\Pub\\Cache\\hosted\\pub.dartlang.org\\local_auth_ios-1.0.10\\
+local_auth_windows=C:\\Users\\diego\\AppData\\Local\\Pub\\Cache\\hosted\\pub.dartlang.org\\local_auth_windows-1.0.4\\
+sqflite=C:\\Users\\diego\\AppData\\Local\\Pub\\Cache\\hosted\\pub.dartlang.org\\sqflite-2.0.2\\
